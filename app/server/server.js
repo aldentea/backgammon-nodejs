@@ -581,11 +581,6 @@ function Server() {
       model.Match.addGuestPlayer(match, player);
       
       this.matches.push(match);
-      
-      var game = model.Match.createNewGame(match, rule);
-      game.hasStarted = true;
-      game.turnPlayer = otherPlayer;
-      game.turnNumber = 1;
 
       // Assign match and rule objects to sockets of both players
       this.setSocketMatch(socket, match);
@@ -603,7 +598,22 @@ function Server() {
       reply.host = otherPlayer;
       reply.guest = player;
       reply.ruleName = params.ruleName;
-      
+
+      var game = model.Match.createNewGame(match, rule);
+      game.hasStarted = true;
+      game.turnNumber = 1;
+
+      var first = -1;
+      while (first < 0)
+      {
+        var dice = rule.firstRoll();
+        first = rule.whoGoesFirst(dice);
+      }
+
+      game.turnPlayer = first == 0 ? otherPlayer : player;
+      dice = rule.rollDice(game, dice.values);
+      game.turnDice = dice;
+
       var self = this;
       reply.sendAfter = function () {
         self.sendMatchMessage(
@@ -616,6 +626,7 @@ function Server() {
       };
       
       return true;
+
     }
     else {
       // Put player in queue, and wait for another player

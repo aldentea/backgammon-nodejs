@@ -129,8 +129,10 @@ function App() {
 
     // Subscribe to events used on landing page
     client.subscribe(comm.Message.EVENT_MATCH_START, function (msg, params) {
+      var match = params['match'];
       self.setIsWaiting(false);
       self.setCurrentView('game');
+      //match.currentGame.
       self.updateView();
       client.resizeUI();
     });
