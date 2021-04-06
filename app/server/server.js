@@ -724,8 +724,20 @@ function Server() {
 
     // Directly start match
     match.currentGame.hasStarted = true;
-    match.currentGame.turnPlayer = match.host;
+    //match.currentGame.turnPlayer = match.host;
     match.currentGame.turnNumber = 1;
+    var game = match.currentGame;
+    
+    var first = -1;
+    while (first < 0)
+    {
+      var dice = rule.firstRoll();
+      first = rule.whoGoesFirst(dice);
+    }
+
+    game.turnPlayer = first == 0 ? match.host : guestPlayer;
+    dice = rule.rollDice(game, dice.values);
+    game.turnDice = dice;
 
     var self = this;
     reply.sendAfter = function () {
@@ -1070,8 +1082,19 @@ function Server() {
       // NEXT: Start a new game
       var game = model.Match.createNewGame(match, rule);
       game.hasStarted = true;
-      game.turnPlayer = winner;
+      //game.turnPlayer = winner;
       game.turnNumber = 1;
+
+      var first = -1;
+      while (first < 0)
+      {
+        var dice = rule.firstRoll();
+        first = rule.whoGoesFirst(dice);
+      }
+
+      game.turnPlayer = first == 0 ? match.host : match.guest;
+      dice = rule.rollDice(game, dice.values);
+      game.turnDice = dice;
 
       reply.sendAfter = function () {
         self.sendMatchMessage(
